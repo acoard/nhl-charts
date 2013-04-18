@@ -118,8 +118,6 @@ live_soup = BeautifulSoup(urllib2.urlopen('http://games.espn.go.com/fhl/standing
 #API Key:  x4ywrm5qwd352zf59unnecdc
 #FUCKING ESPN WANTS ME TO PAY?!  FUCK THE API.
 
-r = requests.get('http://api.espn.com/v1/fantasy/hockey/news?apikey=:x4ywrm5qwd352zf59unnecdc')
-
 
 Brandon = create_team_dict(0)
 Kevin = create_team_dict(1)
