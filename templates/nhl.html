@@ -6,20 +6,99 @@
   url_for('static', filename='jquery.js') }}"></script>
   <script type=text/javascript src="{{
   url_for('static', filename='jquery.flot.js') }}"></script>
+    <script type=text/javascript src="{{
+  url_for('static', filename='jquery.flot.stack.js') }}"></script>
+      <script type=text/javascript src="{{
+  url_for('static', filename='jquery.flot.axislabels.js') }}"></script>
 
 </head>
 <script type="text/javascript">
-var d1 = [[0, 3], [1, 3], [2, 5], [3, 7], [4, 8], [5, 10], [6, 11], [7, 9], [8, 5], [9, 13]];
+var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+
  
 $(document).ready(function () {
-    $.plot($("#chart"), [
-        {
-            data: d1,
+	$.getJSON("{{
+		url_for('static', filename='data.json')}}", function(data) {
+	d2 = []
+	
+	i = 1 //Chart data is 1-indiced
+    $.each(data, function(player, val) {				
+			//The JSON passes the numbers as a string, convert into int for flot
+			player_points = parseInt(val.points, 10)
+			d2.push([i,player_points])
+			i += 1			
+	});
+
+    i = 0 //Ticks are 0-indiced
+    var ticks = []
+    $.each(data, function(iter){
+    	//Iterate over each team in json.
+    	//Append to a list of [0, teamname], [1, teamname]
+    	ticks.push([i, iter])
+    	i++
+    });
+
+    //Options must be placed after ticks has been assigned, which requires the json from $.getJSON, i.e. options cannot be at the beginning of the document.
+
+    var options = {
+            series: {
+                bars: {
+                    show: true
+                }
+            },
             bars: {
-                show: true
+                align: "center",
+                barWidth: 0.5
+            },
+            xaxis: {
+                axisLabel: "Teams",
+                axisLabelUseCanvas: true,
+                axisLabelFontSizePixels: 12,
+                axisLabelFontFamily: 'Verdana, Arial',
+                axisLabelPadding: 10,
+                ticks: ticks
+            },
+            yaxis: {
+                axisLabel: "Points",
+                axisLabelUseCanvas: true,
+                axisLabelFontSizePixels: 12,
+                axisLabelFontFamily: 'Verdana, Arial',
+                axisLabelPadding: 3,
+            },
+            legend: {
+                noColumns: 0,
+                labelBoxBorderColor: "#000000",
+                position: "nw"
+            },
+            grid: {
+                hoverable: true,
+                borderWidth: 2,
+                backgroundColor: { colors: ["#ffffff", "#EDF5FF"] }
             }
-        }
-    ]);
+        };
+
+	    
+    dataset = [{ label: "Teams", data: d2, color: "5482FF" }];
+	$.plot($('#chart'), dataset, options);
+	    
+	    /*
+	    LEGACY CODE.  In working condition as long as d2 is unmodified.
+	    Is replaced by above $.plot
+	    $.plot($("#chart"), [
+	        {
+	            data: d2,
+	            label: "Player Points",
+	            xaxis: {
+	            	ticks: ticks
+	            },
+	            bars: {
+	                show: true,
+	                barWidth: 0.5
+	            }
+	        }
+	    ]); */
+	});
 });
 </script>
 
@@ -33,6 +112,7 @@ $(document).ready(function () {
 	</ul>
 	 
 	 <h1> jquery flot stuff goes here </h1>
+	 <p>Data for the charts was last updated on: {{last_modified}}</p>
 	 <div id ="chart" style="width:600px;height:300px;"></div>
 
 </body>

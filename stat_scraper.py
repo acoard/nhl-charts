@@ -2,13 +2,37 @@
 from bs4 import BeautifulSoup
 import urllib2
 import simplejson as json
+import os
+import time
 
-soup = BeautifulSoup(urllib2.urlopen('http://games.espn.go.com/fhl/standings?leagueId=39372&view=official').read())
+json_file = 'static/data.json'
 
-#Having huge troubles getting any other searches to work properly, might have to make do with this.
-bg_sort_a, bg_sort_b = soup.find_all(bgcolor="#f4f1e8"), soup.find_all(bgcolor='#f7f8f2')
-raw_list = list(bg_sort_a) + list(bg_sort_b)
-#Each list, _a and _b, both duplicate themselves.  Items 0-4 are also 5-9. 
+def write_json():
+	json_dict = {}
+	with open(json_file, 'w+') as outfile:
+		for i in everybody:
+			json_dict[str(i['name'])] = i
+		outfile.write(json.dumps(json_dict))
+	return json.dumps(json_dict)
+
+def age_of_json():
+	'''
+	Determines the age of the JSON file.
+	'''
+	t = os.path.getmtime(json_file)
+	return time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(t))
+
+def what_if_penalties():
+	print "Alternative penalties score!  What if they were negative instead of positive points?"
+	for i in everybody:
+		print i.name, "new score:", i.points - i.pim*2
+
+def download_page():
+	output = open('output.html', 'w+')
+	output.write(soup.encode('utf8'))
+	return True
+
+
 
 
 
@@ -81,6 +105,12 @@ def create_team_dict(input):
 	d['sorting']= team[12]
 	d['change']= team[13]
 	return d
+soup = BeautifulSoup(urllib2.urlopen('http://games.espn.go.com/fhl/standings?leagueId=39372&view=official').read())
+
+#Having huge troubles getting any other searches to work properly, might have to make do with this.
+bg_sort_a, bg_sort_b = soup.find_all(bgcolor="#f4f1e8"), soup.find_all(bgcolor='#f7f8f2')
+raw_list = list(bg_sort_a) + list(bg_sort_b)
+#Each list, _a and _b, both duplicate themselves.  Items 0-4 are also 5-9. 
 
 
 Brandon = create_team_dict(0)
@@ -96,25 +126,25 @@ Luke = create_team_dict(13)
 Dwayne = create_team_dict(14)
 
 everybody = [Brandon, Kevin, Connor, Adam, Cam, Ryan, Max, Keegan, Luke, Dwayne]
+write_json()
 
 
-def write_json():
-	json_dict = {}
-	with open('data.json', 'w+') as outfile:
-		#To get a JSON-izable dict.  Use ClassInstance.__dict__
-		for i in everybody:
-			json_dict[str(i['name'])] = i
-		outfile.write(json.dumps(json_dict))
-	return True
+#  I BELIEVE ALL BELOW CODE IS COPIED ABOVE, SAVED JUST IN CASE
+# def write_json():
+# 	json_dict = {}
+# 	with open('json/data.json', 'w+') as outfile:
+# 		for i in everybody:
+# 			json_dict[str(i['name'])] = i
+# 		outfile.write(json.dumps(json_dict))
+# 	return json.dumps(json_dict)
 
+# def what_if_penalties():
+# 	print "Alternative penalties score!  What if they were negative instead of positive points?"
+# 	for i in everybody:
+# 		print i.name, "new score:", i.points - i.pim*2
 
-def what_if_penalties():
-	print "Alternative penalties score!  What if they were negative instead of positive points?"
-	for i in everybody:
-		print i.name, "new score:", i.points - i.pim*2
-
-def download_page():
-	output = open('output.html', 'w+')
-	output.write(soup.encode('utf8'))
-	return True
+# def download_page():
+# 	output = open('output.html', 'w+')
+# 	output.write(soup.encode('utf8'))
+# 	return True
 

@@ -1,16 +1,13 @@
 #hello.py
 import os
-from flask import Flask, url_for, render_template
+from flask import Flask, request, session, g, redirect, url_for, abort, \
+     render_template, flash, _app_ctx_stack
 import stat_scraper
+from sqlite3 import dbapi2 as sqlite3
 
 app = Flask(__name__)
+app.debug = True
 
-#url_for('flot', filename='jquery.flot.js')
-
-#everybody is a list of teams.  Each team is a dictionary.
-everybody = stat_scraper.everybody
-
-name = everybody
 
 @app.route('/')
 def hello():
@@ -18,10 +15,15 @@ def hello():
 
 @app.route('/nhl/')
 def charts_scores():
-	return render_template('nhl.html', teams=everybody)
-		
+	stat_scraper.write_json()
+	return render_template('nhl.html', teams=stat_scraper.everybody, 
+						last_modified=stat_scraper.age_of_json())
 
-#@app.route('/nhl/')
+@app.route('/test/')
+def test_page():
+	return render_template('test.html')
+
+
 
 if __name__ == '__main__':
     app.run()
