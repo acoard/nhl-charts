@@ -4,7 +4,6 @@ import urllib2
 import simplejson as json
 import os
 import time
-import requests
 
 json_file = 'static/data.json'
 
