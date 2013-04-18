@@ -30,7 +30,7 @@ $(document).ready(function () {
 			i += 1			
 	});
 
-    i = 0 //Ticks are 0-indiced
+    i = 1 //Ticks are 0-indiced
     var ticks = []
     $.each(data, function(iter){
     	//Iterate over each team in json.
@@ -79,9 +79,48 @@ $(document).ready(function () {
         };
 
 	    
-    dataset = [{ label: "Teams", data: d2, color: "5482FF" }];
+    dataset = [{data: d2, color: "5482FF" }];
 	$.plot($('#chart'), dataset, options);
-	    
+	  
+	function showTooltip(x, y, contents) {
+        $('<div id="tooltip">' + contents + '</div>').css( {
+            position: 'absolute',
+            display: 'none',
+            top: y + 5,
+            left: x + 5,
+            border: '1px solid #fdd',
+            padding: '2px',
+            'background-color': '#fee',
+            opacity: 0.80
+        }).appendTo("body").fadeIn(200);
+    }
+
+    var previousPoint = null;
+
+    $("#chart").bind("plothover", function (event, pos, item) {
+        $("#x").text(pos.x.toFixed(2));
+        $("#y").text(pos.y.toFixed(2));
+
+            if (item) {
+
+                if (previousPoint != item.dataIndex) {
+                    previousPoint = item.dataIndex;
+                    
+                    $("#tooltip").remove();
+                    var x = item.datapoint[0].toFixed(2),
+                        y = item.datapoint[1].toFixed(2);
+                    
+                     showTooltip(item.pageX, item.pageY,
+                                 //item.series.label + " of " + x + " = " + y);
+                     			item.datapoint[1]);
+                }
+            }
+            else {
+                $("#tooltip").remove();
+                previousPoint = null;            
+            }
+    });
+
 	    /*
 	    LEGACY CODE.  In working condition as long as d2 is unmodified.
 	    Is replaced by above $.plot
@@ -111,8 +150,12 @@ $(document).ready(function () {
 	{% endfor %}
 	</ul>
 	 
-	 <h1> jquery flot stuff goes here </h1>
-	 <p>Data for the charts was last updated on: {{last_modified}}</p>
+	 <h1> jQuery Flot Chart </h1>
+	 <p><i>Data for the charts was last updated on: {{last_modified}}</i></p>
+	 <p>While the plan was to have these charts auto-update as the games went on, ESPN requires that developers become approved partners before they can get access to the data of live standings.  Because of this, they make it very difficult to scrape the live data off of their website.  My app automatically gets new information from ESPN every time you refresh this page, but the "new" information is the stats ESPN updates once a day. For now the charts are based off of the "official" rather than the "live" scores, i.e. the scores released every night after the games are over. 
+
+
+	 <br><br>I'm still working on a live charting system, but for now we're not there.</p>
 	 <div id ="chart" style="width:600px;height:300px;"></div>
 
 </body>

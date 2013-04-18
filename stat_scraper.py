@@ -4,6 +4,7 @@ import urllib2
 import simplejson as json
 import os
 import time
+import requests
 
 json_file = 'static/data.json'
 
@@ -31,10 +32,6 @@ def download_page():
 	output = open('output.html', 'w+')
 	output.write(soup.encode('utf8'))
 	return True
-
-
-
-
 
 def load_data(team):
 	'''
@@ -105,12 +102,24 @@ def create_team_dict(input):
 	d['sorting']= team[12]
 	d['change']= team[13]
 	return d
+
+
+#The link below is to the 'official' team stats, which only update at the end of the day after games are done playing.
 soup = BeautifulSoup(urllib2.urlopen('http://games.espn.go.com/fhl/standings?leagueId=39372&view=official').read())
 
 #Having huge troubles getting any other searches to work properly, might have to make do with this.
 bg_sort_a, bg_sort_b = soup.find_all(bgcolor="#f4f1e8"), soup.find_all(bgcolor='#f7f8f2')
 raw_list = list(bg_sort_a) + list(bg_sort_b)
 #Each list, _a and _b, both duplicate themselves.  Items 0-4 are also 5-9. 
+
+live_soup = BeautifulSoup(urllib2.urlopen('http://games.espn.go.com/fhl/standings?leagueId=39372&view=live').read())
+
+#Instead of using BeautifulSoup, will attempt to use the ESPN API
+#http://developer.espn.com/blog/read/20120905_football
+#API Key:  x4ywrm5qwd352zf59unnecdc
+#FUCKING ESPN WANTS ME TO PAY?!  FUCK THE API.
+
+r = requests.get('http://api.espn.com/v1/fantasy/hockey/news?apikey=:x4ywrm5qwd352zf59unnecdc')
 
 
 Brandon = create_team_dict(0)
@@ -129,22 +138,4 @@ everybody = [Brandon, Kevin, Connor, Adam, Cam, Ryan, Max, Keegan, Luke, Dwayne]
 write_json()
 
 
-#  I BELIEVE ALL BELOW CODE IS COPIED ABOVE, SAVED JUST IN CASE
-# def write_json():
-# 	json_dict = {}
-# 	with open('json/data.json', 'w+') as outfile:
-# 		for i in everybody:
-# 			json_dict[str(i['name'])] = i
-# 		outfile.write(json.dumps(json_dict))
-# 	return json.dumps(json_dict)
-
-# def what_if_penalties():
-# 	print "Alternative penalties score!  What if they were negative instead of positive points?"
-# 	for i in everybody:
-# 		print i.name, "new score:", i.points - i.pim*2
-
-# def download_page():
-# 	output = open('output.html', 'w+')
-# 	output.write(soup.encode('utf8'))
-# 	return True
 

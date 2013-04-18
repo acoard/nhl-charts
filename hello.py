@@ -8,6 +8,17 @@ from sqlite3 import dbapi2 as sqlite3
 app = Flask(__name__)
 app.debug = True
 
+'''
+Current State of Affairs:
+
+ESPN requires a special partner status to get their live stats, and it appears 
+they obsfucate just scrapping them from the site.  Need to do some googling
+to see if getting around this is possible.
+
+
+
+'''
+
 
 @app.route('/')
 def hello():
